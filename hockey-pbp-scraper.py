@@ -74,7 +74,7 @@ def json_to_array(shifts_df, game_json):
     
     for play in game_json['liveData']['plays']['allPlays']:
         event_type = play['result']['eventTypeId']
-        if event_type not in ['FACEOFF', 'HIT', 'BLOCKED_SHOT', 'MISSED_SHOT', 'GIVEAWAY', 'TAKEAWAY', 'GOAL']:
+        if event_type not in ['FACEOFF', 'HIT', 'BLOCKED_SHOT', 'MISSED_SHOT', 'GIVEAWAY', 'TAKEAWAY', 'GOAL', 'SHOT']:
             continue
         event_index = play['about']['eventIdx']
         game_period = play['about']['period']
@@ -123,19 +123,14 @@ def json_to_array(shifts_df, game_json):
 
 def get_game_ids(start_date, end_date):
     # Season year is the first year in the season
-    
     schedule = requests.get(f"https://statsapi.web.nhl.com/api/v1/schedule?startDate={start_date}&endDate={end_date}").json()
-    game_ids = []
-    for day in schedule['dates']:
-        for game in day['games']:
-            if game['gameType'] == "R":
-                game_ids.append(game['gamePk'])
+    game_ids = [game['gamePk'] for day in schedule['dates'] for game in day['games']]
     return game_ids
     
 
 def main():
     all_games = []
-    game_ids = get_game_ids('2022-10-07', '2023-04-14')
+    game_ids = get_game_ids('2021-01-13', '2023-05-28')
     print(len(game_ids))
     start_time = time.time()
     i = 0
@@ -152,7 +147,7 @@ def main():
                                           "home_skater_4", "home_skater_5", "home_skater_6", "away_skater_1", "away_skater_2", "away_skater_3", 
                                           "away_skater_4", "away_skater_5", "away_skater_6", "home_goalie", "away_goalie", "home_skaters", "away_skaters", 
                                           "home_goals", "away_goals"])
-    df.to_csv('202223_pbp_data.csv')
+    df.to_csv('pbp_data.csv')
     
     
 if __name__ == "__main__":
